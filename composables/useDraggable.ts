@@ -82,6 +82,8 @@ export interface UseDraggableOptions {
    * @default 'both'
    */
   axis?: 'x' | 'y' | 'both'
+
+  transformSource?: MaybeRefOrGetter<HTMLElement | SVGElement | null | undefined>
 }
 
 /**
@@ -91,7 +93,7 @@ export interface UseDraggableOptions {
  * @param target
  * @param options
  */
-export function useDraggable2(
+export function useDraggable(
   target: MaybeRefOrGetter<HTMLElement | SVGElement | null | undefined>,
   options: UseDraggableOptions = {},
 ) {
@@ -107,6 +109,7 @@ export function useDraggable2(
     axis = 'both',
     draggingElement = defaultWindow,
     handle: draggingHandle = target,
+    transformSource,
   } = options
 
   const position = ref<Position>(
@@ -114,6 +117,13 @@ export function useDraggable2(
   )
 
   const pressedDelta = ref<Position>()
+
+  const getTransformSourceValue = () => {
+    if (transformSource)
+      return toValue(transformSource)
+    return toValue(target)?.parentElement
+  }
+  let transformSourceValue = getTransformSourceValue()
 
   const filterEvent = (e: PointerEvent) => {
     if (pointerTypes)
@@ -133,15 +143,18 @@ export function useDraggable2(
       return
     if (toValue(exact) && e.target !== toValue(target))
       return
+
+    transformSourceValue = getTransformSourceValue()
+
     const itemRect = toValue(target)!.getBoundingClientRect()
     const itemRectX = itemRect.x
     const itemRectY = itemRect.y
-    const parentTransform = toValue(target)!.parentElement!.style.transform
-    const parentTransformScale = Number(parentTransform?.match(/scale\((.*?)\)/)?.[1] ?? 1)
-    // 计算出鼠标在元素上的位置（相对于元素的左上角）
+    const transformSourceScale = Number(transformSourceValue?.style.transform?.match(/scale\((.*?)\)/)?.[1] ?? 1)
+
+    // calculate the position of the mouse on the element (relative to the upper left corner of the element)
     const pos = {
-      x: (e.clientX - itemRectX) / parentTransformScale,
-      y: (e.clientY - itemRectY) / parentTransformScale,
+      x: (e.clientX - itemRectX) / transformSourceScale,
+      y: (e.clientY - itemRectY) / transformSourceScale,
     }
     if (onStart?.(pos, e) === false)
       return
@@ -155,20 +168,18 @@ export function useDraggable2(
       return
 
     // get parent x and y
-    const parentRect = toValue(target)!.parentElement!.getBoundingClientRect()
+    const transformSourceRect = transformSourceValue?.getBoundingClientRect() ?? { left: 0, top: 0 }
 
     // get parent transform scale, x and y
-    const parentTransform = toValue(target)!.parentElement!.style.transform
-    const parentTransformScale = Number(parentTransform?.match(/scale\((.*?)\)/)?.[1] ?? 1)
-
-    const parentX = parentRect.left
-    const parentY = parentRect.top
+    const parentTransformScale = Number(transformSourceValue?.style.transform?.match(/scale\((.*?)\)/)?.[1] ?? 1)
+    const sourceX = transformSourceRect.left
+    const sourceY = transformSourceRect.top
 
     let { x, y } = position.value
     if (axis === 'x' || axis === 'both')
-      x = (e.clientX - parentX) / parentTransformScale - pressedDelta.value.x
+      x = (e.clientX - sourceX) / parentTransformScale - pressedDelta.value.x
     if (axis === 'y' || axis === 'both')
-      y = (e.clientY - parentY) / parentTransformScale - pressedDelta.value.y
+      y = (e.clientY - sourceY) / parentTransformScale - pressedDelta.value.y
     position.value = {
       x,
       y,
@@ -203,4 +214,4 @@ export function useDraggable2(
   }
 }
 
-export type UseDraggableReturn = ReturnType<typeof useDraggable2>
+export type UseDraggableReturn = ReturnType<typeof useDraggable>

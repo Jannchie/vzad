@@ -79,13 +79,19 @@ export function useZoomable(
       isCtrlDown = false
   }
 
+  const onMouseLeave = (event: MouseEvent) => {
+    event.preventDefault()
+    isDragging = false
+  }
+
   onMounted(() => {
     const elem = el.value
     if (elem) {
       elem.addEventListener('wheel', onWheel, { passive: false })
-      elem.addEventListener('mousedown', onMouseDown)
-      elem.addEventListener('mousemove', onMouseMove)
-      elem.addEventListener('mouseup', onMouseUp)
+      elem.addEventListener('pointerdown', onMouseDown)
+      elem.addEventListener('pointermove', onMouseMove)
+      elem.addEventListener('pointerup', onMouseUp)
+      elem.addEventListener('pointerleave', onMouseLeave)
       window.addEventListener('keydown', onKeyDown)
       window.addEventListener('keyup', onKeyUp)
     }
@@ -95,9 +101,9 @@ export function useZoomable(
     const elem = el.value
     if (elem) {
       elem.removeEventListener('wheel', onWheel)
-      elem.removeEventListener('mousedown', onMouseDown)
-      elem.removeEventListener('mousemove', onMouseMove)
-      elem.removeEventListener('mouseup', onMouseUp)
+      elem.removeEventListener('pointerdown', onMouseDown)
+      elem.removeEventListener('pointermove', onMouseMove)
+      elem.removeEventListener('pointerup', onMouseUp)
       window.removeEventListener('keydown', onKeyDown)
       window.removeEventListener('keyup', onKeyUp)
     }
