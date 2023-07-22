@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 
 const background = ref<HTMLElement | null>(null)
-const { scale, pos, style: backgroundStyle } = useZoomable(background)
+const { scale, pos, style: zoomStyle } = useZoomable(background)
 const patternSize = computed(() => {
   const base = 32
   const scaled = base * scale.value
@@ -10,8 +10,10 @@ const patternSize = computed(() => {
 })
 
 const transformSource = ref<HTMLElement | null | undefined>(null)
+const positionSource = ref<HTMLElement | null | undefined>(null)
 defineExpose({
   transformSource,
+  positionSource,
 })
 </script>
 
@@ -21,9 +23,12 @@ defineExpose({
       ref="background" class="background-pattern h-full inset-0 fixed touch-none"
       :style="{ backgroundPosition: `${pos.x}px ${pos.y}px`, backgroundSize: patternSize }"
     >
-      <div ref="transformSource" class="absolute" :style="backgroundStyle">
-        <slot />
-      </div>
+      <div ref="positionSource" class="absolute" :style="zoomStyle" />
+      <svg class="w-screen h-screen fixed">
+        <g ref="transformSource" :style="zoomStyle" class="fixed">
+          <slot />
+        </g>
+      </svg>
     </div>
   </div>
 </template>

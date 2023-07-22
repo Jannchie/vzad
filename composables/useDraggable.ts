@@ -84,6 +84,7 @@ export interface UseDraggableOptions {
   axis?: 'x' | 'y' | 'both'
 
   transformSource?: MaybeRefOrGetter<HTMLElement | SVGElement | null | undefined>
+  positionSource?: MaybeRefOrGetter<HTMLElement | SVGElement | null | undefined>
 }
 
 /**
@@ -110,6 +111,7 @@ export function useDraggable(
     draggingElement = defaultWindow,
     handle: draggingHandle = target,
     transformSource,
+    positionSource,
   } = options
 
   const position = ref<Position>(
@@ -123,7 +125,15 @@ export function useDraggable(
       return toValue(transformSource)
     return toValue(target)?.parentElement
   }
+  const getPositionSourceValue = () => {
+    if (positionSource)
+      return toValue(positionSource)
+    if (transformSource)
+      return toValue(transformSource)
+    return toValue(target)?.parentElement
+  }
   let transformSourceValue = getTransformSourceValue()
+  let positionSourceValue = getPositionSourceValue()
 
   const filterEvent = (e: PointerEvent) => {
     if (pointerTypes)
@@ -145,12 +155,11 @@ export function useDraggable(
       return
 
     transformSourceValue = getTransformSourceValue()
-
+    positionSourceValue = getPositionSourceValue()
     const itemRect = toValue(target)!.getBoundingClientRect()
     const itemRectX = itemRect.x
     const itemRectY = itemRect.y
     const transformSourceScale = Number(transformSourceValue?.style.transform?.match(/scale\((.*?)\)/)?.[1] ?? 1)
-
     // calculate the position of the mouse on the element (relative to the upper left corner of the element)
     const pos = {
       x: (e.clientX - itemRectX) / transformSourceScale,
@@ -166,20 +175,17 @@ export function useDraggable(
       return
     if (!pressedDelta.value)
       return
-
     // get parent x and y
-    const transformSourceRect = transformSourceValue?.getBoundingClientRect() ?? { left: 0, top: 0 }
-
+    const positionSource = positionSourceValue?.getBoundingClientRect() ?? { left: 0, top: 0 }
     // get parent transform scale, x and y
-    const parentTransformScale = Number(transformSourceValue?.style.transform?.match(/scale\((.*?)\)/)?.[1] ?? 1)
-    const sourceX = transformSourceRect.left
-    const sourceY = transformSourceRect.top
-
+    const transformSourceScale = Number(transformSourceValue?.style.transform?.match(/scale\((.*?)\)/)?.[1] ?? 1)
+    const sourceX = positionSource.left
+    const sourceY = positionSource.top
     let { x, y } = position.value
     if (axis === 'x' || axis === 'both')
-      x = (e.clientX - sourceX) / parentTransformScale - pressedDelta.value.x
+      x = (e.clientX - sourceX) / transformSourceScale - pressedDelta.value.x
     if (axis === 'y' || axis === 'both')
-      y = (e.clientY - sourceY) / parentTransformScale - pressedDelta.value.y
+      y = (e.clientY - sourceY) / transformSourceScale - pressedDelta.value.y
     position.value = {
       x,
       y,
