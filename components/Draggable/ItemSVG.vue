@@ -20,23 +20,30 @@ const { x, y, style } = useDraggable(el, {
     datum.pos = { x: xNiced, y: yNiced }
   },
 })
+const isHover = useElementHover(el)
+const { w, h } = datum.shape
 </script>
 
 <template>
   <g
-    ref="el" :style="style"
-    :transform="`translate(${x}, ${y})`"
-    class="select-none absolute touch-none active:z-100 cursor-move active:stroke-sky-500"
+    ref="el" :style="style" :transform="`translate(${x}, ${y})`"
+    class="select-none absolute touch-none active:z-100 cursor-move"
   >
-    <rect
-      :style="style"
-      :width="32 * 6"
-      :height="32 * 2"
-      :rx="4"
-      class="fill-zinc-900"
-    />
-    <text class="fill-white" stroke-width="0" :x="32 * 3" :y="32 * 1" text-anchor="middle" dominant-baseline="middle">
-      I am at {{ x }}, {{ y }}
-    </text>
+    <g class="active:stroke-amber">
+      <rect :style="style" :width="w" :height="h" :rx="4" class="fill-zinc-900" />
+      <text class="fill-white" stroke-width="0" :x="w / 2" :y="h / 2" text-anchor="middle" dominant-baseline="middle">
+        I am at {{ x }}, {{ y }}
+      </text>
+    </g>
+    <g v-if="isHover" class="children:fill-amber">
+      <circle :cx="0" :cy="0" r="4" />
+      <circle :cx="w" :cy="h" r="4" />
+      <circle :cx="0" :cy="h" r="4" />
+      <circle :cx="w" :cy="0" r="4" />
+      <circle :cx="w / 2" :cy="h" r="4" />
+      <circle :cx="w / 2" :cy="0" r="4" />
+      <circle :cx="w" :cy="h / 2" r="4" />
+      <circle :cx="0" :cy="h / 2" r="4" />
+    </g>
   </g>
 </template>

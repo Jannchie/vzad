@@ -3,7 +3,9 @@ import WorkspaceSVG from '~/components/WorkspaceSVG.vue'
 
 const workspaceRef = ref<InstanceType<typeof WorkspaceSVG>>()
 const data = useData()
-const keys = Object.keys(data)
+const connections = useConnections()
+const dataKeys = Object.keys(data)
+const connectionKeys = Object.keys(connections)
 </script>
 
 <template>
@@ -13,7 +15,12 @@ const keys = Object.keys(data)
   <WorkspaceSVG ref="workspaceRef">
     <g v-if="workspaceRef">
       <DraggableItemSVG
-        v-for="key in keys" :id="key" :key="key"
+        v-for="key in dataKeys" :id="key" :key="key"
+        :transform-source="workspaceRef?.transformSource"
+        :position-source="workspaceRef?.positionSource"
+      />
+      <DraggableLinkSVG
+        v-for="key in connectionKeys" :id="key" :key="key"
         :transform-source="workspaceRef?.transformSource"
         :position-source="workspaceRef?.positionSource"
       />
