@@ -1,13 +1,10 @@
+import type { Point } from 'utils/Point'
+import type { Shape } from 'utils/Shape'
+
 type Data = () => {
   [key: string]: {
-    pos: {
-      x: number
-      y: number
-    }
-    shape: {
-      w: number
-      h: number
-    }
+    pos: Point
+    shape: Shape
   }
 }
 
@@ -30,7 +27,7 @@ export function useDatum(id: string) {
 type Link = () => {
   [key: string]: {
     from: string
-    via: [{ x: number; y: number }]
+    via: Point[]
     to: string
   }
 }
