@@ -16,21 +16,25 @@ const toCenter = computed(() => ({
   x: to.pos.x + to.shape.w / 2,
   y: to.pos.y + to.shape.h / 2,
 }))
+
+function buildSVGPath(from: { x: number; y: number }, to: { x: number; y: number }, via: { x: number; y: number }[]) {
+  let path = `M ${from.x} ${from.y}`
+  for (const v of via)
+    path += ` L ${v.x} ${v.y}`
+  path += ` L ${to.x} ${to.y}`
+  return path
+}
 </script>
 
 <template>
   <g class="stroke-amber fill-amber">
     <path
       stroke-width="2"
-      :d="`
-      M ${fromCenter.x} ${fromCenter.y}
-      L 0 0
-      L ${toCenter.x} ${toCenter.y}
-    `"
+      :d="buildSVGPath(fromCenter, toCenter, via)"
       fill="none"
       marker-end="url(#arrowhead)"
     />
-    <circle v-for="v, i in via" :key="i" :x="v[0]" :y="v[1]" r="4" />
+    <DraggablePointSVG v-for="_v, i in via" :id="id" :key="i" :index="i" />
     <marker
       id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5"
       orient="auto" markerUnits="strokeWidth"

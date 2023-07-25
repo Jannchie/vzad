@@ -30,14 +30,14 @@ export function useDatum(id: string) {
 type Link = () => {
   [key: string]: {
     from: string
-    via: [[number, number]]
+    via: [{ x: number; y: number }]
     to: string
   }
 }
 export const useConnections = createGlobalState<Link>(() => reactive({
   1: {
     from: '1',
-    via: [[0, 0]],
+    via: [{ x: 128, y: (128 + 256 + 64) / 2 }],
     to: '2',
   },
 }))

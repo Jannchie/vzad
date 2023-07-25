@@ -11,10 +11,8 @@ const patternSize = computed(() => {
 
 const transformSource = ref<HTMLElement | null | undefined>(null)
 const positionSource = ref<HTMLElement | null | undefined>(null)
-defineExpose({
-  transformSource,
-  positionSource,
-})
+provide('transformSource', transformSource)
+provide('positionSource', positionSource)
 </script>
 
 <template>

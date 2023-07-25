@@ -1,9 +1,7 @@
 <script setup lang="ts">
-const { transformSource, positionSource, id } = defineProps<{
-  transformSource?: HTMLElement | null
-  positionSource?: HTMLElement | null
-  id: string
-}>()
+const { id } = defineProps<{ id: string }>()
+const transformSource = inject<MaybeRefOrGetter<HTMLElement | SVGElement | null | undefined>>('transformSource')
+const positionSource = inject<MaybeRefOrGetter<HTMLElement | SVGElement | null | undefined>>('positionSource')
 const el = ref<HTMLElement | null>(null)
 const datum = useDatum(id)
 const { x, y, style } = useDraggable(el, {
