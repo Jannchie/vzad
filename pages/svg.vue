@@ -14,16 +14,8 @@ const connectionKeys = Object.keys(connections)
   </div>
   <WorkspaceSVG ref="workspaceRef">
     <g v-if="workspaceRef">
-      <DraggableItemSVG
-        v-for="key in dataKeys" :id="key" :key="key"
-        :transform-source="workspaceRef?.transformSource"
-        :position-source="workspaceRef?.positionSource"
-      />
-      <DraggableLinkSVG
-        v-for="key in connectionKeys" :id="key" :key="key"
-        :transform-source="workspaceRef?.transformSource"
-        :position-source="workspaceRef?.positionSource"
-      />
+      <DraggableItemSVG v-for="key in dataKeys" :key="key" v-model:data="data[key]" />
+      <DraggableLinkSVG v-for="key in connectionKeys" :key="key" v-model:data="connections[key]" />
     </g>
   </WorkspaceSVG>
 </template>

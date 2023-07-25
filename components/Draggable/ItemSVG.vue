@@ -1,11 +1,32 @@
 <script setup lang="ts">
-const { id } = defineProps<{ id: string }>()
+const props = defineProps<{
+  data: {
+    pos: {
+      x: number
+      y: number
+    }
+    shape: {
+      w: number
+      h: number
+    }
+  }
+}>()
+const emit = defineEmits(['update:data'])
+
+const data = computed({
+  get() {
+    return props.data
+  },
+  set(value) {
+    emit('update:data', value)
+  },
+})
+
 const transformSource = inject<MaybeRefOrGetter<HTMLElement | SVGElement | null | undefined>>('transformSource')
 const positionSource = inject<MaybeRefOrGetter<HTMLElement | SVGElement | null | undefined>>('positionSource')
 const el = ref<HTMLElement | null>(null)
-const datum = useDatum(id)
 const { x, y, style } = useDraggable(el, {
-  initialValue: datum.pos,
+  initialValue: data.value.pos,
   stopPropagation: true,
   preventDefault: true,
   transformSource,
@@ -15,11 +36,11 @@ const { x, y, style } = useDraggable(el, {
     const yNiced = Math.round(newY / 32) * 32
     x.value = xNiced
     y.value = yNiced
-    datum.pos = { x: xNiced, y: yNiced }
+    data.value.pos = { x: xNiced, y: yNiced }
   },
 })
 const isHover = useElementHover(el)
-const { w, h } = datum.shape
+const { w, h } = data.value.shape
 </script>
 
 <template>
